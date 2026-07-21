@@ -28,6 +28,22 @@ class OHLCVAnalyzer:
         """
         Load the OHLCV dataset and parse timestamps.
         """
+        required_columns = {
+            "timestamp",
+            "open",
+            "high",
+            "low",
+            "close",
+            "volume",
+        }
+
+        missing = required_columns - set(self.df.columns)
+
+        if missing:
+            raise ValueError(f"Missing required columns: {missing}")
+
+
+        
         self.df = pd.read_csv(
             self.file_path,
             parse_dates=["timestamp"]
