@@ -1,5 +1,5 @@
 from pathlib import Path
-
+from typing import Optional
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,7 +12,14 @@ class OHLCVAnalyzer:
 
     def __init__(self, file_path: str):
         self.file_path = Path(file_path)
-        self.df = None
+        self.df:Optional[pd.DataFrame]=None
+
+    def _ensure_data_loaded(self) -> None:
+        """
+        Ensure the dataset has been loaded.
+        """
+        if self.df is None:
+            raise ValueError("Dataset not loaded")
 
     def load_data(self) -> None:
         """
@@ -35,6 +42,8 @@ class OHLCVAnalyzer:
         Validate the dataset by checking missing values,
         duplicate timestamps, and displaying a summary.
         """
+
+        self._ensure_data_loaded()
 
         print("\n" + "=" * 50)
         print("DATA VALIDATION")
@@ -61,9 +70,40 @@ class OHLCVAnalyzer:
 
         
 
-    def calculate_indicators(self):
-        """Calculate SMA, returns and volatility."""
-        pass
+    def calculate_indicators(self) -> None:
+        """
+        Calculate moving averages, returns, and rolling volatility.
+        """
+        self._ensure_data_loaded()
+
+     
+        self.df["SMA10"] = (
+            self.df["close"]
+            .rolling(window=10)
+            .mean()
+        )
+
+        self.df["SMA20"] = (
+            self.df["close"]
+            .rolling(window=20)
+            .mean()
+        )
+
+        self.df["Return"] = (
+            self.df["close"]
+            .pct_change()
+            * 100
+        )
+
+        self.df["Volatility"] = (
+            self.df["Return"]
+            .rolling(window=20)
+            .std()
+        )
+
+        print("\n Technical indicators calculated successfully.")
+
+
 
     def detect_trend(self):
         """Detect market trend."""

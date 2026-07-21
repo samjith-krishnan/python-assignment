@@ -26,6 +26,10 @@ def main():
 
     analyzer.load_data()
     analyzer.validate_data()
+    analyzer.calculate_indicators()
+
+    print("\nProcessed Data:")
+    print(analyzer.df.head(25))
 
 
 if __name__ == "__main__":
