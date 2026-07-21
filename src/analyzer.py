@@ -105,13 +105,84 @@ class OHLCVAnalyzer:
 
 
 
-    def detect_trend(self):
-        """Detect market trend."""
-        pass
+    def detect_trend(self) -> None:
+        """
+        Detect market trend based on the 20-period SMA.
+        """
+        self._ensure_data_loaded()
 
-    def analyze(self):
-        """Generate statistical analysis."""
-        pass
+        conditions = [
+            self.df["close"] > self.df["SMA20"],
+            self.df["close"] < self.df["SMA20"],
+        ]
+
+        choices = [
+            "uptrend",
+            "downtrend",
+        ]
+
+        self.df["trend"] = np.select(
+            conditions,
+            choices,
+            default="neutral",
+        )
+
+        print("\n Trend detection completed.")
+
+
+    def trend_summary(self) -> None:
+        """
+        Display trend counts and percentages.
+        """
+        self._ensure_data_loaded()
+
+        print("\n" + "=" * 50)
+        print("TREND SUMMARY")
+        print("=" * 50)
+
+        counts = self.df["trend"].value_counts()
+
+        percentages = (
+            self.df["trend"]
+            .value_counts(normalize=True)
+            .mul(100)
+            .round(2)
+        )
+
+        summary = pd.DataFrame({
+            "Count": counts,
+            "Percentage": percentages
+        })
+
+        print(summary)
+
+
+
+    def analyze(self) -> None:
+        """
+        Perform basic statistical analysis on the OHLCV data.
+        """
+        self._ensure_data_loaded()
+
+        analysis = {
+            "Largest Single-Period Gain (%)": self.df["Return"].max(),
+            "Largest Single-Period Loss (%)": self.df["Return"].min(),
+            "Highest Closing Price": self.df["close"].max(),
+            "Lowest Closing Price": self.df["close"].min(),
+            "Average Volume": self.df["volume"].mean(),
+        }
+
+        print("\n" + "=" * 50)
+        print("BASIC ANALYSIS")
+        print("=" * 50)
+
+        for metric, value in analysis.items():
+            if isinstance(value, float):
+                print(f"{metric:<35}: {value:.2f}")
+            else:
+                print(f"{metric:<35}: {value}")
+
+
 
     def plot(self):
         """Plot closing prices with moving averages."""
