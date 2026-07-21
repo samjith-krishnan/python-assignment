@@ -12,9 +12,8 @@ def main():
     analyzer.trend_summary()
     analyzer.analyze()
 
-
-    # analyzer.plot()
-    # analyzer.save()
+    analyzer.plot()
+    analyzer.save()
 
 
 if __name__ == "__main__":

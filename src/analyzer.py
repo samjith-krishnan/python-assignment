@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+
 class OHLCVAnalyzer:
     """
     Analyze OHLCV time-series data.
@@ -12,7 +13,9 @@ class OHLCVAnalyzer:
 
     def __init__(self, file_path: str):
         self.file_path = Path(file_path)
-        self.df:Optional[pd.DataFrame]=None
+        self.output_dir = Path("output")
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.df = None
 
     def _ensure_data_loaded(self) -> None:
         """
@@ -184,10 +187,58 @@ class OHLCVAnalyzer:
 
 
 
-    def plot(self):
-        """Plot closing prices with moving averages."""
-        pass
+    def plot(self) -> None:
+        """
+        Plot the closing price with SMA10 and SMA20.
+        """
+        self._ensure_data_loaded()
 
-    def save(self):
-        """Save processed dataset."""
-        pass
+        plt.figure(figsize=(15, 7))
+
+        plt.plot(
+            self.df["timestamp"],
+            self.df["close"],
+            label="Close Price",
+            linewidth=1.5,
+        )
+
+        plt.plot(
+            self.df["timestamp"],
+            self.df["SMA10"],
+            label="SMA 10",
+            linewidth=2,
+        )
+
+        plt.plot(
+            self.df["timestamp"],
+            self.df["SMA20"],
+            label="SMA 20",
+            linewidth=2,
+        )
+
+        plt.title("OHLCV Closing Price with Moving Averages")
+        plt.xlabel("Timestamp")
+        plt.ylabel("Price")
+
+        plt.grid(True)
+
+        plt.legend()
+
+        plt.tight_layout()
+
+        plt.savefig(self.output_dir / "chart.png", dpi=300)
+        plt.show()
+        print("\n Chart saved to output/chart.png")
+
+    def save(self) -> None:
+        """
+        Save the processed dataset.
+        """
+        self._ensure_data_loaded()
+
+        self.df.to_csv(
+        self.output_dir / "processed_data.csv",
+        index=False
+    )
+
+        print("Processed dataset saved to output/processed_data.csv")
